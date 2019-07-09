@@ -6,7 +6,7 @@ body {
 
 .table-wrapper {
     background: #fff;
-    padding: 20px 25px;
+    padding: 20px 0px;
     margin: 30px 0;
     border-radius: 3px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
@@ -16,9 +16,10 @@ body {
     width: 100%;
 }
 
-nav {
+.table-wrapper nav {
     color: #fff;
     height: 70px;
+    padding: 10px 30px;
 }
 .btn i {
     margin-right: 5px;
@@ -49,6 +50,10 @@ nav {
 
 .col-sm-offset-8 {
     margin-left: 66.66666667%;
+}
+
+.row, .table {
+    padding: 0 30px;
 }
 
 .table {
