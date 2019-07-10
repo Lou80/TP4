@@ -4,7 +4,9 @@ const app = express();
 app.use( cors() );
 app.use( express.json() );
 
-const users = [];
+const users = [
+    {id:1, name: 'caca'}
+];
 
 app.get('/api/users', function (req, res) {
     res.json(users)
