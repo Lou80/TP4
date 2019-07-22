@@ -16,9 +16,13 @@ app.get('/api/users', function (req, res) {
 
 app.post('/api/users', function (req, res) {
     const newEmployee = req.body;
-    /*if(newEmployee.name.length > 30 || !newEmployee.email.includes('@') || newEmployee.phoneNumber.typeOf !== 'number' ) {
-         return res.status(400).send('error');
-    }*/
+    const phone = newEmployee.phoneNumber;
+    const phoneOk = typeof phone;
+    
+    if (newEmployee.name.length > 30 || !newEmployee.email.includes('@') || phoneOk !== 'number') {
+        console.log(phone, phoneOk);
+        return res.status(400).send('error');
+    }
     newEmployee.id = userId++;
     users.push(newEmployee);
     res.json(newEmployee);

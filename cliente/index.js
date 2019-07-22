@@ -37,13 +37,15 @@ document.querySelector('.modal-content form').onsubmit = function (e) {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const address = document.getElementById('address').value;
-    const phone = document.getElementById('phone').value;
+    const phoneNumber = parseInt(document.getElementById('phone').value)
+
     const newEmployee = {
         name: name,
         email: email,
         address: address,
-        phoneNumber: phone,
+        phoneNumber: phoneNumber,
     }
+    
     fetch(`${baseURL}/api/users`, {
         method: 'post',
         body: JSON.stringify(newEmployee),
