@@ -7,7 +7,7 @@ fetch(`${baseURL}/api/users`)
     .then(function (users) {
         users.forEach(u => {
             const user = `
-            <tr id=${u.id}>
+            <tr id=${u.id}">
             <td>
                 <span class="custom-checkbox">
                     <input type="checkbox" id="checkbox5" name="options[]" value="1">
@@ -27,8 +27,8 @@ fetch(`${baseURL}/api/users`)
                         style="color: #f44336"></i></a>
             </td>
         </tr>`;
-            const table = document.querySelector('.table-wrapper table');
-            table.innerHTML += user;
+            const tableBody = document.querySelector('table tbody');
+            tableBody.innerHTML += user;
         })
     })
 
@@ -37,25 +37,29 @@ document.querySelector('.modal-content form').onsubmit = function (e) {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const address = document.getElementById('address').value;
-    const phoneNumber = parseInt(document.getElementById('phone').value)
+    const phoneNumber = parseInt(document.getElementById('phone').value);
+    const phoneNumberOk = typeof phoneNumber;
+    console.log(phoneNumber, phoneNumberOk)
 
-    const newEmployee = {
-        name: name,
-        email: email,
-        address: address,
-        phoneNumber: phoneNumber,
-    }
-    
-    fetch(`${baseURL}/api/users`, {
-        method: 'post',
-        body: JSON.stringify(newEmployee),
-        headers: {
-            'Content-Type': 'application/json'
+    if (name.length <= 30 && email.includes('@') && phoneNumberOk === 'number') {
+
+        const newEmployee = {
+            name: name,
+            email: email,
+            address: address,
+            phoneNumber: phoneNumber,
         }
-    })
-        .then(res => res.json())
-        .then(u => {
-            const user = `
+
+        fetch(`${baseURL}/api/users`, {
+            method: 'post',
+            body: JSON.stringify(newEmployee),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => res.json())
+            .then(u => {
+                const user = `
             <tr id=${u.id}>
             <td>
                 <span class="custom-checkbox">
@@ -76,7 +80,10 @@ document.querySelector('.modal-content form').onsubmit = function (e) {
                         style="color: #f44336"></i></a>
             </td>
         </tr>`;
-            const table = document.querySelector('.table-wrapper table');
-            table.innerHTML += user;
-        });
+                const tableBody = document.querySelector('table tbody');
+                tableBody.innerHTML += user;
+            });
+    } else {
+        console.log('hay algún error');
+    }
 }

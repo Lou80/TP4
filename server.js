@@ -6,9 +6,7 @@ app.use(express.json());
 
 let userId = 1;
 
-const users = [
-    { id: 1, name: 'caca' }
-];
+const users = [];
 
 app.get('/api/users', function (req, res) {
     res.json(users)
