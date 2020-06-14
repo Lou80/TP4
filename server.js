@@ -6,7 +6,7 @@ app.use(express.json());
 
 let userId = 2;
 
-const users = [
+let users = [
   {
     id: 13,
     name: "Juan Carlos Batman",
@@ -38,8 +38,11 @@ app.post("/api/users", function (req, res) {
 });
 
 app.delete("/api/users/:id", function (req, res) {
-  res.json();
-  //console.log(req.params.id);
+  const filteredList = users.filter((user) => user.id !== req.params.id);
+  users = filteredList;
+  console.log(users);
+
+  res.json(filteredList);
 });
 
 app.listen(3000);

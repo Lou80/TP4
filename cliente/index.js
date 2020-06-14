@@ -5,7 +5,6 @@ fetch(`${baseURL}/api/users`)
     return res.json();
   })
   .then(function (users) {
-    console.log(users);
     users.forEach((u) => {
       const user = `
       <tr id="row_${u.id}">
@@ -52,7 +51,6 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
     })
       .then((res) => res.json())
       .then((u) => {
-        console.log(u);
         const user = `
             <tr id="row_${u.id}">
             <td>${u.name}</td>
@@ -78,14 +76,20 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
 
 const remove = () => {
   const employeeId = event.target.id;
-
   fetch(`${baseURL}/api/users/${employeeId}`, {
     method: "delete",
     headers: {
       "Content-Type": "application/json",
     },
-  }).then((res) => {
-    const targetRow = document.getElementById(`row_${employeeId}`);
-    res.ok ? targetRow.parentNode.removeChild(targetRow) : console.log("error");
-  });
+  })
+    .then((res) => {
+      res.json();
+    })
+    .then((users) => {
+      const targetRow = document.getElementById(`row_${employeeId}`);
+
+      targetRow.parentNode.removeChild(targetRow);
+      //: console.log("error");
+      console.log(users);
+    });
 };
