@@ -1,12 +1,12 @@
-const baseURL = "http://localhost:3000";
+const baseURL = 'http://localhost:3000';
 
 fetch(`${baseURL}/api/users`)
-  .then(function (res) {
-    return res.json();
-  })
-  .then(function (users) {
-    users.forEach((u) => {
-      const user = `
+	.then(function (res){
+		return res.json();
+	})
+	.then(function (users){
+		users.forEach((u) => {
+			const user = `
       <tr id="row_${u.id}">
             <td>${u.name}</td>
             <td>${u.email}</td>
@@ -21,37 +21,37 @@ fetch(`${baseURL}/api/users`)
                         style="color: #f44336"></i></a>
             </td>
         </tr>`;
-      const tableBody = document.querySelector("table tbody");
-      tableBody.innerHTML += user;
-    });
-  });
+			const tableBody = document.querySelector('table tbody');
+			tableBody.innerHTML += user;
+		});
+	});
 
-document.querySelector(".modal-content form").onsubmit = function (e) {
-  e.preventDefault();
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const address = document.getElementById("address").value;
-  const phoneNumber = parseInt(document.getElementById("phone").value);
-  const phoneNumberOk = typeof phoneNumber;
+document.querySelector('.modal-content form').onsubmit = function (e){
+	e.preventDefault();
+	const name = document.getElementById('name').value;
+	const email = document.getElementById('email').value;
+	const address = document.getElementById('address').value;
+	const phoneNumber = parseInt(document.getElementById('phone').value);
+	const phoneNumberOk = typeof phoneNumber;
 
-  if (name.length <= 30 && email.includes("@") && phoneNumberOk === "number") {
-    const newEmployee = {
-      name: name,
-      email: email,
-      address: address,
-      phoneNumber: phoneNumber,
-    };
+	if (name.length <= 30 && email.includes('@') && phoneNumberOk === 'number') {
+		const newEmployee = {
+			name        : name,
+			email       : email,
+			address     : address,
+			phoneNumber : phoneNumber
+		};
 
-    fetch(`${baseURL}/api/users`, {
-      method: "post",
-      body: JSON.stringify(newEmployee),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((u) => {
-        const user = `
+		fetch(`${baseURL}/api/users`, {
+			method  : 'post',
+			body    : JSON.stringify(newEmployee),
+			headers : {
+				'Content-Type' : 'application/json'
+			}
+		})
+			.then((res) => res.json())
+			.then((u) => {
+				const user = `
             <tr id="row_${u.id}">
             <td>${u.name}</td>
             <td>${u.email}</td>
@@ -66,30 +66,26 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
                         style="color: #f44336"></i></a>
             </td>
         </tr>`;
-        const tableBody = document.querySelector("table tbody");
-        tableBody.innerHTML += user;
-      });
-  } else {
-    console.log("hay algún error");
-  }
+				const tableBody = document.querySelector('table tbody');
+				tableBody.innerHTML += user;
+			});
+	}
+	else {
+		console.log('hay algún error');
+	}
 };
 
 const remove = () => {
-  const employeeId = event.target.id;
-  fetch(`${baseURL}/api/users/${employeeId}`, {
-    method: "delete",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => {
-      res.json();
-    })
-    .then((users) => {
-      const targetRow = document.getElementById(`row_${employeeId}`);
-
-      targetRow.parentNode.removeChild(targetRow);
-      //: console.log("error");
-      console.log(users);
-    });
+	const employeeId = event.target.id;
+	fetch(`${baseURL}/api/users/${employeeId}`, {
+		method  : 'delete',
+		headers : {
+			'Content-Type' : 'application/json'
+		}
+	}).then((res) => {
+		const targetRow = document.getElementById(`row_${employeeId}`);
+		targetRow.parentNode.removeChild(targetRow);
+		//: console.log("error");
+		console.log(res);
+	});
 };
