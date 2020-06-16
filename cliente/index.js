@@ -5,7 +5,6 @@ fetch(`${baseURL}/api/users`)
     return res.json();
   })
   .then(function (users) {
-    console.log(users);
     users.forEach((u) => {
       const user = `
       <tr id="row_${u.id}">
@@ -122,10 +121,13 @@ const remove = () => {
   });
 };
 
-const addTitle = () => {
+const addEmployeeModal = () => {
   document.querySelector("h4.modal-title").innerText = "Add Employee";
+  document.querySelector(".modal-footer input").setAttribute("value", "Add");
 };
+
 const edit = () => {
   document.querySelector("h4.modal-title").innerText = "Edit Employee";
   document.querySelector(".modal-content form").id = event.target.id;
+  document.querySelector(".modal-footer input").setAttribute("value", "Edit");
 };
