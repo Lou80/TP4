@@ -6,6 +6,7 @@ app.use(express.json());
 app.use(express.static("assets"));
 //app.use("/fotos", express.static("assets"));
 //app.use("/fotos", express.static(path.join(__dirname, "assets")));
+const router = express.Router;
 
 let userId = 2;
 
@@ -24,26 +25,16 @@ app.all("/api/users(/:id)?", function (req, res, next) {
   next();
 });
 
-app.get("/api/users", function (req, res) {
-  res.json(users);
-});
-
-app.post("/api/users", function (req, res) {
-  const newEmployee = req.body;
-  const phone = newEmployee.phoneNumber;
-  const phoneOk = typeof phone;
-
-  if (
-    newEmployee.name.length > 30 ||
-    !newEmployee.email.includes("@") ||
-    phoneOk !== "number"
-  ) {
-    return res.sendStatus("hubo un error");
-  }
-  newEmployee.id = userId++;
-  users.push(newEmployee);
-  res.json(newEmployee);
-});
+app
+  .route("/api/users")
+  .get("/api/users", function (req, res) {
+    res.json(users);
+  })
+  .post("/api/users", validateReqBody, function (req, res) {
+    const newEmployee = req.body;
+    users.push(newEmployee);
+    res.json(newEmployee);
+  });
 
 app.delete("/api/users/:id", function (req, res) {
   const selectedId = parseInt(req.params.id);
@@ -56,8 +47,18 @@ app.delete("/api/users/:id", function (req, res) {
   }
 });
 
-app.put("/api/users/:id", function (req, res) {
-  const selectedId = parseInt(req.params.id);
+app.put("/api/users/:id", validateReqBody, function (req, res) {
+  const selectedEmployee = users.findIndex((user) => user.id === req.body.id);
+  if (selectedEmployee >= 0) {
+    const newEmployee = req.body;
+    users.splice(selectedEmployee, 1, newEmployee);
+    return res.json(newEmployee);
+  } else {
+    return res.status(400).send("no se encontró usuario");
+  }
+});
+
+const validateReqBody = function (req, res, next) {
   const newEmployee = req.body;
   const phone = newEmployee.phoneNumber;
   const phoneOk = typeof phone;
@@ -66,16 +67,11 @@ app.put("/api/users/:id", function (req, res) {
     !newEmployee.email.includes("@") ||
     phoneOk !== "number"
   ) {
-    return res.status(400).send("error");
-  }
-  const selectedEmployee = users.findIndex((user) => user.id === selectedId);
-  if (selectedEmployee >= 0) {
-    newEmployee.id = selectedId;
-    users.splice(selectedEmployee, 1, newEmployee);
-    return res.json(newEmployee);
+    return res.status(400).send("Hubo un error en la carga de datos");
   } else {
-    return res.status(400).send("no se encontró usuario");
+    req.body.id = req.method === "POST" ? userId++ : parseInt(req.params.id);
+    next();
   }
-});
+};
 
 app.listen(3000);

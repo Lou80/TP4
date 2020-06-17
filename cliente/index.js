@@ -44,7 +44,6 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
       address: address,
       phoneNumber: phoneNumber,
     };
-
     if (submitType === "Add Employee") {
       fetch(`${baseURL}/api/users`, {
         method: "post",
@@ -53,7 +52,7 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => (res.ok ? res.json() : console.log(res)))
         .then((u) => {
           const user = `
             <tr id="row_${u.id}">
