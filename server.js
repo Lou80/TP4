@@ -36,6 +36,17 @@ const validateReqBody = function (req, res, next) {
   }
 };
 
+const findUser = function (req, res, next) {
+  const employeeId = parseInt(req.params.id);
+  console.log(employeeId);
+  const employeeIndex = users.findIndex((user) => user.id === employeeId);
+  //console.log(selectedEmployee);
+  if (employeeIndex >= 0) {
+    req.selectedEmployee = employeeId;
+    next();
+  } else res.status(400).send("User not found");
+};
+
 app.all("/api/users(/:id)?", function (req, res, next) {
   console.log("Auth checked" + req.method);
   next();
@@ -54,26 +65,15 @@ app
 
 app
   .route("/api/users/:id")
-  .delete(function (req, res) {
-    const selectedId = parseInt(req.params.id);
-    const selectedEmployee = users.findIndex((user) => user.id === selectedId);
-    if (selectedEmployee >= 0) {
-      users = users.filter((user) => user.id !== parseInt(req.params.id));
-      return res.json(users);
-    } else {
-      return res.status(400).send("no se encontró usuario");
-    }
+  .delete(findUser, function (req, res) {
+    users = users.filter((user) => user.id !== req.selectedEmployee);
+    return res.json(users);
   })
 
-  .put(validateReqBody, function (req, res) {
-    const selectedEmployee = users.findIndex((user) => user.id === req.body.id);
-    if (selectedEmployee >= 0) {
-      const newEmployee = req.body;
-      users.splice(selectedEmployee, 1, newEmployee);
-      return res.json(newEmployee);
-    } else {
-      return res.status(400).send("no se encontró usuario");
-    }
+  .put(validateReqBody, findUser, function (req, res) {
+    const newEmployee = req.body;
+    users.splice(req.body.id, 1, newEmployee);
+    return res.json(newEmployee);
   });
 
 app.listen(3000);
