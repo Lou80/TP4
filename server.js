@@ -3,6 +3,9 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static("assets"));
+//app.use("/fotos", express.static("assets"));
+//app.use("/fotos", express.static(path.join(__dirname, "assets")));
 
 let userId = 2;
 
@@ -15,6 +18,11 @@ let users = [
     phoneNumber: 78963014,
   },
 ];
+
+app.all("/api/users(/:id)?", function (req, res, next) {
+  console.log("Auth checked" + req.method);
+  next();
+});
 
 app.get("/api/users", function (req, res) {
   res.json(users);
@@ -30,7 +38,7 @@ app.post("/api/users", function (req, res) {
     !newEmployee.email.includes("@") ||
     phoneOk !== "number"
   ) {
-    return res.status(400).send("error");
+    return res.sendStatus("hubo un error");
   }
   newEmployee.id = userId++;
   users.push(newEmployee);
