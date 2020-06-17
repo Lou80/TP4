@@ -52,26 +52,28 @@ app
     res.json(newEmployee);
   });
 
-app.delete("/api/users/:id", function (req, res) {
-  const selectedId = parseInt(req.params.id);
-  const selectedEmployee = users.findIndex((user) => user.id === selectedId);
-  if (selectedEmployee >= 0) {
-    users = users.filter((user) => user.id !== parseInt(req.params.id));
-    return res.json(users);
-  } else {
-    return res.status(400).send("no se encontró usuario");
-  }
-});
+app
+  .route("/api/users/:id")
+  .delete(function (req, res) {
+    const selectedId = parseInt(req.params.id);
+    const selectedEmployee = users.findIndex((user) => user.id === selectedId);
+    if (selectedEmployee >= 0) {
+      users = users.filter((user) => user.id !== parseInt(req.params.id));
+      return res.json(users);
+    } else {
+      return res.status(400).send("no se encontró usuario");
+    }
+  })
 
-app.put("/api/users/:id", validateReqBody, function (req, res) {
-  const selectedEmployee = users.findIndex((user) => user.id === req.body.id);
-  if (selectedEmployee >= 0) {
-    const newEmployee = req.body;
-    users.splice(selectedEmployee, 1, newEmployee);
-    return res.json(newEmployee);
-  } else {
-    return res.status(400).send("no se encontró usuario");
-  }
-});
+  .put(validateReqBody, function (req, res) {
+    const selectedEmployee = users.findIndex((user) => user.id === req.body.id);
+    if (selectedEmployee >= 0) {
+      const newEmployee = req.body;
+      users.splice(selectedEmployee, 1, newEmployee);
+      return res.json(newEmployee);
+    } else {
+      return res.status(400).send("no se encontró usuario");
+    }
+  });
 
 app.listen(3000);
