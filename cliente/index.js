@@ -2,7 +2,11 @@ const baseURL = "http://localhost:3000";
 
 fetch(`${baseURL}/api/users`)
   .then(function (res) {
-    return res.json();
+    if (res.ok) {
+      return res.json();
+    } else {
+      console.log(res);
+    }
   })
   .then(function (users) {
     users.forEach((u) => {

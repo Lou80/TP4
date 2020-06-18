@@ -4,8 +4,48 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("assets"));
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/test", { useNewUrlParser: true });
 //app.use("/fotos", express.static("assets"));
-const router = express.Router;
+
+const db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function () {
+  // we're connected!
+});
+
+const kittySchema = new mongoose.Schema({
+  name: String,
+});
+
+kittySchema.methods.speak = function () {
+  const greeting = this.name
+    ? "Meow name is " + this.name
+    : "I don't have a name";
+  console.log(greeting);
+};
+const Kitten = mongoose.model("Kitten", kittySchema);
+const silence = new Kitten({ name: "Silence" });
+console.log(silence.name); // 'Silence'
+
+//const Kitten = mongoose.model("Kitten", kittySchema);
+const fluffy = new Kitten({ name: "fluffy" });
+fluffy.speak();
+
+// fluffy.save(function (err, fluffy) {
+//   if (err) return console.error(err);
+//   fluffy.speak();
+// });
+
+Kitten.find(function (err, kittens) {
+  if (err) return console.error(err);
+  console.log(kittens);
+});
+
+app.response.sendStatus = function (statusCode, type, message) {
+  return this.contentType(type).status(statusCode).send(message);
+};
 
 let userId = 2;
 
@@ -28,7 +68,7 @@ const validateReqBody = function (req, res, next) {
     !newEmployee.email.includes("@") ||
     phoneOk !== "number"
   ) {
-    return res.status(400).send("Hubo un error en la carga de datos");
+    res.sendStatus(404, "application/json", '{"error":"resource not found"}');
   } else {
     req.body.id = req.method === "POST" ? userId++ : parseInt(req.params.id);
     next();
@@ -46,8 +86,13 @@ const findUser = function (req, res, next) {
 };
 
 app.all("/api/users(/:id)?", function (req, res, next) {
-  console.log("Auth checked" + req.method);
-  next();
+  const auth = true;
+  if (auth) {
+    console.log("Auth checked" + req.method);
+    next();
+  } else {
+    res.sendStatus(401, "application/json", '{"error":"Please log in"}');
+  }
 });
 
 app
@@ -68,7 +113,7 @@ app
     return res.json(users);
   })
 
-  .put(validateReqBody, findUser, function (req, res) {
+  .put([validateReqBody, findUser], function (req, res) {
     const newEmployee = req.body;
     users.splice(req.index, 1, newEmployee);
     return res.json(newEmployee);
