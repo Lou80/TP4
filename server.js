@@ -5,14 +5,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("assets"));
 //app.use("/fotos", express.static("assets"));
-//app.use("/fotos", express.static(path.join(__dirname, "assets")));
 const router = express.Router;
 
 let userId = 2;
 
 let users = [
   {
-    id: 1,
+    id: 13,
     name: "Juan Carlos Batman",
     email: "juan.carlos@batman.com",
     address: "Pangolin 345, Wuhan",
@@ -38,11 +37,10 @@ const validateReqBody = function (req, res, next) {
 
 const findUser = function (req, res, next) {
   const employeeId = parseInt(req.params.id);
-  console.log(employeeId);
   const employeeIndex = users.findIndex((user) => user.id === employeeId);
-  //console.log(selectedEmployee);
   if (employeeIndex >= 0) {
-    req.selectedEmployee = employeeId;
+    req.index = employeeIndex;
+    req.selectedId = employeeId;
     next();
   } else res.status(400).send("User not found");
 };
@@ -66,13 +64,13 @@ app
 app
   .route("/api/users/:id")
   .delete(findUser, function (req, res) {
-    users = users.filter((user) => user.id !== req.selectedEmployee);
+    users = users.filter((user) => user.id !== req.selectedId);
     return res.json(users);
   })
 
   .put(validateReqBody, findUser, function (req, res) {
     const newEmployee = req.body;
-    users.splice(req.body.id, 1, newEmployee);
+    users.splice(req.index, 1, newEmployee);
     return res.json(newEmployee);
   });
 
