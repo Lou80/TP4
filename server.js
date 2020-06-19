@@ -12,7 +12,7 @@ const db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", function () {
-  // we're connected!
+  console.log("we're connected!");
 });
 
 const kittySchema = new mongoose.Schema({
@@ -31,12 +31,16 @@ console.log(silence.name); // 'Silence'
 
 //const Kitten = mongoose.model("Kitten", kittySchema);
 const fluffy = new Kitten({ name: "fluffy" });
-fluffy.speak();
-
+// fluffy.speak();
+// silence.speak();
 // fluffy.save(function (err, fluffy) {
 //   if (err) return console.error(err);
 //   fluffy.speak();
 // });
+silence.save(function (err, silence) {
+  if (err) return console.error(err);
+  silence.speak();
+});
 
 Kitten.find(function (err, kittens) {
   if (err) return console.error(err);
@@ -119,4 +123,7 @@ app
     return res.json(newEmployee);
   });
 
-app.listen(3000);
+const port = 3000;
+app.listen(port, () =>
+  console.log(`Example app listening at http://localhost:${port}`)
+);
