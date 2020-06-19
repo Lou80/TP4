@@ -11,17 +11,17 @@ fetch(`${baseURL}/api/users`)
   .then(function (users) {
     users.forEach((u) => {
       const user = `
-      <tr id="row_${u.id}">
+      <tr id="row_${u._id}">
             <td>${u.name}</td>
             <td>${u.email}</td>
-            <td>${u.address}</td>
+            <td>${u.address ? u.address : ""}</td>
             <td>${u.phoneNumber}</td>
             <td>
                 <a onclick="edit()"  class="edit" data-toggle="modal" data-toggle="modal"
-                data-target="#exampleModal"><i id="${u.id}"
+                data-target="#exampleModal"><i id="${u._id}"
                         class="material-icons" data-toggle="tooltip" title="Edit"
                         style="color: #ffc107; cursor: pointer;"></i></a>
-                <a onclick="remove()"  class="delete"  ><i id="${u.id}"
+                <a onclick="remove()"  class="delete"  ><i id="${u._id}"
                         class="material-icons" data-toggle="tooltip" title="Delete"
                         style="color: #f44336; cursor: pointer;"></i></a>
             </td>
@@ -59,17 +59,17 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
         .then((res) => (res.ok ? res.json() : console.log(res)))
         .then((u) => {
           const user = `
-            <tr id="row_${u.id}">
+            <tr id="row_${u._id}">
             <td>${u.name}</td>
             <td>${u.email}</td>
             <td>${u.address}</td>
             <td>${u.phoneNumber}</td>
             <td>
                 <a onclick="edit()" class="edit" data-toggle="modal"
-                data-target="#exampleModal"><i id="${u.id}"
+                data-target="#exampleModal"><i id="${u._id}"
                         class="material-icons" data-toggle="tooltip" title="Edit"
                         style="color: #ffc107; cursor: pointer;"></i></a>
-                <a onclick="remove()" class="delete"><i id="${u.id}"
+                <a onclick="remove()" class="delete"><i id="${u._id}"
                         class="material-icons" data-toggle="tooltip" title="Delete"
                         style="color: #f44336; cursor: pointer;"></i></a>
             </td>

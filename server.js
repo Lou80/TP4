@@ -6,8 +6,6 @@ app.use(express.json());
 app.use(express.static("assets"));
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/test", { useNewUrlParser: true });
-//app.use("/fotos", express.static("assets"));
-
 const db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "connection error:"));
@@ -15,53 +13,50 @@ db.once("open", function () {
   console.log("we're connected!");
 });
 
-const kittySchema = new mongoose.Schema({
+// const kittySchema = new mongoose.Schema({
+//   name: String,
+// });
+
+const employeeSchema = new mongoose.Schema({
   name: String,
+  email: String,
+  address: String,
+  phoneNumber: Number,
 });
 
-kittySchema.methods.speak = function () {
-  const greeting = this.name
-    ? "Meow name is " + this.name
-    : "I don't have a name";
-  console.log(greeting);
-};
-const Kitten = mongoose.model("Kitten", kittySchema);
-const silence = new Kitten({ name: "Silence" });
-console.log(silence.name); // 'Silence'
+const Employee = mongoose.model("Employee", employeeSchema);
+
+// kittySchema.methods.speak = function () {
+//   const greeting = this.name
+//     ? "Meow name is " + this.name
+//     : "I don't have a name";
+//   console.log(greeting);
+// };
+// const Kitten = mongoose.model("Kitten", kittySchema);
+// const silence = new Kitten({ name: "Silence" });
+// console.log(silence.name); // 'Silence'
 
 //const Kitten = mongoose.model("Kitten", kittySchema);
-const fluffy = new Kitten({ name: "fluffy" });
+// const fluffy = new Kitten({ name: "fluffy" });
 // fluffy.speak();
 // silence.speak();
 // fluffy.save(function (err, fluffy) {
 //   if (err) return console.error(err);
 //   fluffy.speak();
 // });
-silence.save(function (err, silence) {
-  if (err) return console.error(err);
-  silence.speak();
-});
+// silence.save(function (err, silence) {
+//   if (err) return console.error(err);
+//   silence.speak();
+// });
 
-Kitten.find(function (err, kittens) {
-  if (err) return console.error(err);
-  console.log(kittens);
-});
+// Kitten.find(function (err, kittens) {
+//   if (err) return console.error(err);
+//   console.log(kittens);
+// });
 
 app.response.sendStatus = function (statusCode, type, message) {
   return this.contentType(type).status(statusCode).send(message);
 };
-
-let userId = 2;
-
-let users = [
-  {
-    id: 13,
-    name: "Juan Carlos Batman",
-    email: "juan.carlos@batman.com",
-    address: "Pangolin 345, Wuhan",
-    phoneNumber: 78963014,
-  },
-];
 
 const validateReqBody = function (req, res, next) {
   const newEmployee = req.body;
@@ -74,7 +69,7 @@ const validateReqBody = function (req, res, next) {
   ) {
     res.sendStatus(404, "application/json", '{"error":"resource not found"}');
   } else {
-    req.body.id = req.method === "POST" ? userId++ : parseInt(req.params.id);
+    //req.body.id = req.method === "POST" ? userId++ : parseInt(req.params.id);
     next();
   }
 };
@@ -102,26 +97,59 @@ app.all("/api/users(/:id)?", function (req, res, next) {
 app
   .route("/api/users")
   .get(function (req, res) {
-    res.json(users);
+    Employee.find(function (err, employees) {
+      if (err) return console.log(err);
+      res.json(employees);
+    });
   })
   .post(validateReqBody, function (req, res) {
-    const newEmployee = req.body;
-    users.push(newEmployee);
-    res.json(newEmployee);
+    const { name, email, address, phoneNumber } = req.body;
+    const newEmployee = new Employee({
+      name: name,
+      email: email,
+      address: address,
+      phoneNumber: phoneNumber,
+    });
+    newEmployee.save(function (err, silence) {
+      if (err) return console.error(err);
+      console.log("saved: " + newEmployee);
+      res.json(newEmployee);
+    });
   });
 
 app
   .route("/api/users/:id")
-  .delete(findUser, function (req, res) {
-    users = users.filter((user) => user.id !== req.selectedId);
-    return res.json(users);
+  .delete(function (req, res) {
+    Employee.deleteOne({ _id: req.params.id }, function (err) {
+      if (err) return handleError(err);
+      return res.json();
+    });
   })
 
-  .put([validateReqBody, findUser], function (req, res) {
-    const newEmployee = req.body;
-    users.splice(req.index, 1, newEmployee);
-    return res.json(newEmployee);
-  });
+  .put(
+    validateReqBody,
+    //findUser,
+    function (req, res) {
+      const { name, email, address, phoneNumber } = req.body;
+
+      const newEmployee = Employee.findOneAndUpdate(
+        { _id: req.params.id },
+        {
+          name: name,
+          email: email,
+          address: address,
+          phoneNumber: phoneNumber,
+        }
+      );
+
+      res.json();
+      //console.log(newEmployee);
+      //return res.json();
+      // const newEmployee = req.body;
+      // const myEmployee = users.splice(req.index, 1, newEmployee);
+      // return res.json(newEmployee);
+    }
+  );
 
 const port = 3000;
 app.listen(port, () =>
