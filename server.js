@@ -60,12 +60,13 @@ app.response.sendStatus = function (statusCode, type, message) {
 
 const validateReqBody = function (req, res, next) {
   const newEmployee = req.body;
-  const phone = newEmployee.phoneNumber;
+  const phone = newEmployee.phoneNumber ? newEmployee.phoneNumber : null;
   const phoneOk = typeof phone;
   if (
-    newEmployee.name.length > 30 ||
-    !newEmployee.email.includes("@") ||
-    phoneOk !== "number"
+    // newEmployee.name.length > 30 ||
+    // !newEmployee.email.includes("@") ||
+    // phoneOk !== "number"
+    !newEmployee
   ) {
     res.sendStatus(404, "application/json", '{"error":"resource not found"}');
   } else {
@@ -104,6 +105,7 @@ app
   })
   .post(validateReqBody, function (req, res) {
     const { name, email, address, phoneNumber } = req.body;
+
     const newEmployee = new Employee({
       name: name,
       email: email,
@@ -131,23 +133,20 @@ app
     //findUser,
     function (req, res) {
       const { name, email, address, phoneNumber } = req.body;
-
-      const newEmployee = Employee.findOneAndUpdate(
+      Employee.findOneAndReplace(
         { _id: req.params.id },
         {
           name: name,
           email: email,
           address: address,
           phoneNumber: phoneNumber,
+        },
+        { new: true },
+        function (err) {
+          if (err) return handleError(err);
+          return res.json();
         }
       );
-
-      res.json();
-      //console.log(newEmployee);
-      //return res.json();
-      // const newEmployee = req.body;
-      // const myEmployee = users.splice(req.index, 1, newEmployee);
-      // return res.json(newEmployee);
     }
   );
 
