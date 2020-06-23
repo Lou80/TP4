@@ -13,46 +13,14 @@ db.once("open", function () {
   console.log("we're connected!");
 });
 
-// const kittySchema = new mongoose.Schema({
-//   name: String,
-// });
-
 const employeeSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, required: true },
   email: String,
   address: String,
   phoneNumber: Number,
 });
 
 const Employee = mongoose.model("Employee", employeeSchema);
-
-// kittySchema.methods.speak = function () {
-//   const greeting = this.name
-//     ? "Meow name is " + this.name
-//     : "I don't have a name";
-//   console.log(greeting);
-// };
-// const Kitten = mongoose.model("Kitten", kittySchema);
-// const silence = new Kitten({ name: "Silence" });
-// console.log(silence.name); // 'Silence'
-
-//const Kitten = mongoose.model("Kitten", kittySchema);
-// const fluffy = new Kitten({ name: "fluffy" });
-// fluffy.speak();
-// silence.speak();
-// fluffy.save(function (err, fluffy) {
-//   if (err) return console.error(err);
-//   fluffy.speak();
-// });
-// silence.save(function (err, silence) {
-//   if (err) return console.error(err);
-//   silence.speak();
-// });
-
-// Kitten.find(function (err, kittens) {
-//   if (err) return console.error(err);
-//   console.log(kittens);
-// });
 
 app.response.sendStatus = function (statusCode, type, message) {
   return this.contentType(type).status(statusCode).send(message);
@@ -105,7 +73,6 @@ app
   })
   .post(validateReqBody, function (req, res) {
     const { name, email, address, phoneNumber } = req.body;
-
     const newEmployee = new Employee({
       name: name,
       email: email,
@@ -114,7 +81,6 @@ app
     });
     newEmployee.save(function (err, silence) {
       if (err) return console.error(err);
-      console.log("saved: " + newEmployee);
       res.json(newEmployee);
     });
   });
@@ -129,24 +95,29 @@ app
   })
 
   .put(
-    validateReqBody,
+    //validateReqBody,
     //findUser,
     function (req, res) {
       const { name, email, address, phoneNumber } = req.body;
-      Employee.findOneAndReplace(
-        { _id: req.params.id },
-        {
-          name: name,
-          email: email,
-          address: address,
-          phoneNumber: phoneNumber,
-        },
-        { new: true },
-        function (err) {
-          if (err) return handleError(err);
-          return res.json();
-        }
-      );
+      const selectedId = { _id: req.params.id };
+      Employee.find(selectedId, function (err, employee) {
+        if (err) return console.log(err);
+        const newEmployee = {
+          name: name ? name : employee[0].name,
+          email: email ? email : employee[0].email,
+          address: address ? address : employee[0].address,
+          phoneNumber: phoneNumber ? phoneNumber : employee[0].phoneNumber,
+        };
+        Employee.findOneAndReplace(
+          selectedId,
+          newEmployee,
+          { new: true },
+          function (err) {
+            if (err) return handleError(err);
+            return res.json();
+          }
+        );
+      });
     }
   );
 
