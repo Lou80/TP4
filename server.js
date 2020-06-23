@@ -112,9 +112,9 @@ app
           selectedId,
           newEmployee,
           { new: true },
-          function (err) {
+          function (err, myNewEmployee) {
             if (err) return handleError(err);
-            return res.json();
+            return res.json(myNewEmployee);
           }
         );
       });

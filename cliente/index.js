@@ -48,6 +48,7 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
       address: address,
       phoneNumber: phoneNumber,
     };
+
     if (submitType === "Add Employee") {
       fetch(`${baseURL}/api/users`, {
         method: "post",
@@ -78,6 +79,7 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
           tableBody.innerHTML += user;
         });
     } else {
+      console.log(newEmployee);
       fetch(`${baseURL}/api/users/${employeeId}`, {
         method: "put",
         body: JSON.stringify(newEmployee),
@@ -87,19 +89,23 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
       })
         .then((res) => res.json())
         .then((user) => {
+          const { name, email, address, phoneNumber } = user;
           const targetRow = document.getElementById(`row_${employeeId}`);
-          const name = targetRow.childNodes[1];
-          const newName = document.createTextNode(user.name);
-          const email = targetRow.childNodes[3];
-          const newEmail = document.createTextNode(user.email);
-          const address = targetRow.childNodes[5];
-          const newAdress = document.createTextNode(user.address);
-          const phone = targetRow.childNodes[7];
-          const newPhone = document.createTextNode(user.phoneNumber);
-          name.replaceChild(newName, name.childNodes[0]);
-          email.replaceChild(newEmail, email.childNodes[0]);
-          address.replaceChild(newAdress, address.childNodes[0]);
-          phone.replaceChild(newPhone, phone.childNodes[0]);
+          const { childNodes } = targetRow;
+          const nameNode = childNodes[1];
+          const newName = document.createTextNode(name);
+          const emailNode = childNodes[3];
+          const newEmail = document.createTextNode(email);
+          const addressNode = childNodes[5];
+          console.log(addressNode);
+          const newAddress = document.createTextNode(address);
+          console.log(newAddress);
+          const phoneNode = childNodes[7];
+          const newPhone = document.createTextNode(phoneNumber);
+          nameNode.replaceChild(newName, nameNode.childNodes[0]);
+          emailNode.replaceChild(newEmail, emailNode.childNodes[0]);
+          addressNode.replaceChild(newAddress, addressNode.childNodes[0]);
+          phoneNode.replaceChild(newPhone, phoneNode.childNodes[0]);
         });
     }
   } else {
