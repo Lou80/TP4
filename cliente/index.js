@@ -131,12 +131,39 @@ const remove = () => {
 };
 
 const addEmployeeModal = () => {
-  document.querySelector("h4.modal-title").innerText = "Add Employee";
-  document.querySelector(".modal-footer input").setAttribute("value", "Add");
+  setModalTexts("Add");
 };
 
 const edit = () => {
-  document.querySelector("h4.modal-title").innerText = "Edit Employee";
-  document.querySelector(".modal-content form").id = event.target.id;
-  document.querySelector(".modal-footer input").setAttribute("value", "Edit");
+  setModalTexts("Edit");
+  const selectedId = event.target.id;
+  setFormId(selectedId);
+  fillFormInputs(getEmployeeData(selectedId));
+};
+
+const fillFormInputs = (employeeDataArray) => {
+  const formInputs = Array.from(
+    document.getElementsByClassName("form-control")
+  );
+  let index = 0;
+  formInputs.forEach((input) => {
+    input.value = employeeDataArray[index];
+
+    index++;
+  });
+};
+
+const setModalTexts = (actionText) => {
+  document.querySelector("h4.modal-title").innerText = `${actionText} Employee`;
+  document
+    .querySelector(".modal-footer input")
+    .setAttribute("value", `${actionText}`);
+};
+
+const setFormId = (id) =>
+  (document.querySelector(".modal-content form").id = id);
+
+const getEmployeeData = (id) => {
+  const targetRowData = Array.from(document.querySelectorAll(`#row_${id} td`));
+  return targetRowData.map((tableData) => tableData.innerText);
 };
