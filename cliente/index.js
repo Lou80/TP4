@@ -97,9 +97,7 @@ document.querySelector(".modal-content form").onsubmit = function (e) {
           const emailNode = childNodes[3];
           const newEmail = document.createTextNode(email);
           const addressNode = childNodes[5];
-          console.log(addressNode);
           const newAddress = document.createTextNode(address);
-          console.log(newAddress);
           const phoneNode = childNodes[7];
           const newPhone = document.createTextNode(phoneNumber);
           nameNode.replaceChild(newName, nameNode.childNodes[0]);
@@ -132,6 +130,7 @@ const remove = () => {
 
 const addEmployeeModal = () => {
   setModalTexts("Add");
+  fillFormInputs();
 };
 
 const edit = () => {
@@ -147,8 +146,7 @@ const fillFormInputs = (employeeDataArray) => {
   );
   let index = 0;
   formInputs.forEach((input) => {
-    input.value = employeeDataArray[index];
-
+    input.value = employeeDataArray ? employeeDataArray[index] : "";
     index++;
   });
 };
