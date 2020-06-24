@@ -4,6 +4,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("assets"));
+const assert = require("assert");
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/test", { useNewUrlParser: true });
 const db = mongoose.connection;
@@ -60,8 +61,16 @@ app
       phoneNumber: phoneNumber,
     });
     newEmployee.save(function (error) {
+      //console.log(error);
+      //assert.equal(error.errors, "some missing or invalid data");
+      //assert.equal(error.errors["email"].message, "Path `email` is required.");
+      // assert.equal(
+      //   error.errors["address"].message,
+      //   "Path `address` is required."
+      // );
+
       if (error) {
-        console.error(error);
+        console.log(error);
         return res.sendStatus(400, "application/json", `error: ${error}`);
       }
       return res.json(newEmployee);
