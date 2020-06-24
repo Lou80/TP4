@@ -19,7 +19,7 @@ const employeeSchema = new mongoose.Schema({
     maxlength: [30, "Sorry, name is too long"],
   },
   email: { type: String, required: true },
-  address: String,
+  address: { type: String, required: true },
   phoneNumber: {
     type: Number,
     min: [111111, "Not valid phone number"],
