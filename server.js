@@ -7,41 +7,27 @@ app.use(express.static("assets"));
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/test", { useNewUrlParser: true });
 const db = mongoose.connection;
-
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", function () {
   console.log("we're connected!");
 });
 
 const employeeSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: String,
+  name: {
+    type: String,
+    required: true,
+    maxlength: [30, "Sorry, name is too long"],
+  },
+  email: { type: String, required: true },
   address: String,
-  phoneNumber: Number,
+  phoneNumber: {
+    type: Number,
+    min: [111111, "Not valid phone number"],
+    max: [999999999999, "Not valid phone number"],
+  },
 });
 
 const Employee = mongoose.model("Employee", employeeSchema);
-
-app.response.sendStatus = function (statusCode, type, message) {
-  return this.contentType(type).status(statusCode).send(message);
-};
-
-const validateReqBody = function (req, res, next) {
-  const newEmployee = req.body;
-  const phone = newEmployee.phoneNumber ? newEmployee.phoneNumber : null;
-  const phoneOk = typeof phone;
-  if (
-    // newEmployee.name.length > 30 ||
-    // !newEmployee.email.includes("@") ||
-    // phoneOk !== "number"
-    !newEmployee
-  ) {
-    res.sendStatus(404, "application/json", '{"error":"resource not found"}');
-  } else {
-    //req.body.id = req.method === "POST" ? userId++ : parseInt(req.params.id);
-    next();
-  }
-};
 
 app.all("/api/users(/:id)?", function (req, res, next) {
   const auth = true;
@@ -53,6 +39,10 @@ app.all("/api/users(/:id)?", function (req, res, next) {
   }
 });
 
+app.response.sendStatus = function (statusCode, type, message) {
+  return this.contentType(type).status(statusCode).send(message);
+};
+
 app
   .route("/api/users")
   .get(function (req, res) {
@@ -61,7 +51,7 @@ app
       res.json(employees);
     });
   })
-  .post(validateReqBody, function (req, res) {
+  .post(function (req, res) {
     const { name, email, address, phoneNumber } = req.body;
     const newEmployee = new Employee({
       name: name,
@@ -69,9 +59,12 @@ app
       address: address,
       phoneNumber: phoneNumber,
     });
-    newEmployee.save(function (err, silence) {
-      if (err) return console.error(err);
-      res.json(newEmployee);
+    newEmployee.save(function (error) {
+      if (error) {
+        console.error(error);
+        return res.sendStatus(400, "application/json", `error: ${error}`);
+      }
+      return res.json(newEmployee);
     });
   });
 
@@ -84,31 +77,28 @@ app
     });
   })
 
-  .put(
-    //validateReqBody,
-    function (req, res) {
-      const { name, email, address, phoneNumber } = req.body;
-      const selectedId = { _id: req.params.id };
-      Employee.find(selectedId, function (err, employee) {
-        if (err) return console.log(err);
-        const newEmployee = {
-          name: name ? name : employee[0].name,
-          email: email ? email : employee[0].email,
-          address: address ? address : employee[0].address,
-          phoneNumber: phoneNumber ? phoneNumber : employee[0].phoneNumber,
-        };
-        Employee.findOneAndReplace(
-          selectedId,
-          newEmployee,
-          { new: true },
-          function (err, myNewEmployee) {
-            if (err) return handleError(err);
-            return res.json(myNewEmployee);
-          }
-        );
-      });
-    }
-  );
+  .put(function (req, res) {
+    const { name, email, address, phoneNumber } = req.body;
+    const selectedId = { _id: req.params.id };
+    Employee.find(selectedId, function (err, employee) {
+      if (err) return console.log(err);
+      const newEmployee = {
+        name: name ? name : employee[0].name,
+        email: email ? email : employee[0].email,
+        address: address ? address : employee[0].address,
+        phoneNumber: phoneNumber ? phoneNumber : employee[0].phoneNumber,
+      };
+      Employee.findOneAndReplace(
+        selectedId,
+        newEmployee,
+        { new: true },
+        function (err, myNewEmployee) {
+          if (err) return handleError(err);
+          return res.json(myNewEmployee);
+        }
+      );
+    });
+  });
 
 const port = 3000;
 app.listen(port, () =>
