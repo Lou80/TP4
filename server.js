@@ -43,16 +43,6 @@ const validateReqBody = function (req, res, next) {
   }
 };
 
-const findUser = function (req, res, next) {
-  const employeeId = parseInt(req.params.id);
-  const employeeIndex = users.findIndex((user) => user.id === employeeId);
-  if (employeeIndex >= 0) {
-    req.index = employeeIndex;
-    req.selectedId = employeeId;
-    next();
-  } else res.status(400).send("User not found");
-};
-
 app.all("/api/users(/:id)?", function (req, res, next) {
   const auth = true;
   if (auth) {
@@ -96,7 +86,6 @@ app
 
   .put(
     //validateReqBody,
-    //findUser,
     function (req, res) {
       const { name, email, address, phoneNumber } = req.body;
       const selectedId = { _id: req.params.id };

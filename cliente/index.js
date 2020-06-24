@@ -130,17 +130,17 @@ const remove = () => {
 
 const addEmployeeModal = () => {
   setModalTexts("Add");
-  fillFormInputs();
+  setInputsText();
 };
 
 const edit = () => {
   setModalTexts("Edit");
   const selectedId = event.target.id;
   setFormId(selectedId);
-  fillFormInputs(getEmployeeData(selectedId));
+  setInputsText(getEmployeeData(selectedId));
 };
 
-const fillFormInputs = (employeeDataArray) => {
+const setInputsText = (employeeDataArray) => {
   const formInputs = Array.from(
     document.getElementsByClassName("form-control")
   );
