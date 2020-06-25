@@ -4,6 +4,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("assets"));
+const routes = require("./routes");
 const assert = require("assert");
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/test", { useNewUrlParser: true });
@@ -40,74 +41,7 @@ app.all("/api/users(/:id)?", function (req, res, next) {
   }
 });
 
-app.response.sendStatus = function (statusCode, type, message) {
-  return this.contentType(type).status(statusCode).send(message);
-};
-
-app
-  .route("/api/users")
-  .get(function (req, res) {
-    Employee.find(function (err, employees) {
-      if (err) return console.log(err);
-      res.json(employees);
-    });
-  })
-  .post(function (req, res) {
-    const { name, email, address, phoneNumber } = req.body;
-    const newEmployee = new Employee({
-      name: name,
-      email: email,
-      address: address,
-      phoneNumber: phoneNumber,
-    });
-    newEmployee.save(function (error) {
-      //console.log(error);
-      //assert.equal(error.errors, "some missing or invalid data");
-      //assert.equal(error.errors["email"].message, "Path `email` is required.");
-      // assert.equal(
-      //   error.errors["address"].message,
-      //   "Path `address` is required."
-      // );
-
-      if (error) {
-        console.log(error);
-        return res.sendStatus(400, "application/json", `error: ${error}`);
-      }
-      return res.json(newEmployee);
-    });
-  });
-
-app
-  .route("/api/users/:id")
-  .delete(function (req, res) {
-    Employee.deleteOne({ _id: req.params.id }, function (err) {
-      if (err) return handleError(err);
-      return res.json();
-    });
-  })
-
-  .put(function (req, res) {
-    const { name, email, address, phoneNumber } = req.body;
-    const selectedId = { _id: req.params.id };
-    Employee.find(selectedId, function (err, employee) {
-      if (err) return console.log(err);
-      const newEmployee = {
-        name: name ? name : employee[0].name,
-        email: email ? email : employee[0].email,
-        address: address ? address : employee[0].address,
-        phoneNumber: phoneNumber ? phoneNumber : employee[0].phoneNumber,
-      };
-      Employee.findOneAndReplace(
-        selectedId,
-        newEmployee,
-        { new: true },
-        function (err, myNewEmployee) {
-          if (err) return handleError(err);
-          return res.json(myNewEmployee);
-        }
-      );
-    });
-  });
+app.use("/api/users", routes);
 
 const port = 3000;
 app.listen(port, () =>
