@@ -76,7 +76,7 @@ router
     const selectedId = { _id: req.params.id };
     Employee.find(selectedId, function (err, employee) {
       if (err) {
-        res.sendStatus(404, "application/json", `error: ${error}`);
+        res.sendStatus(404, "application/json", `error: ${err}`);
         return;
       }
       const original = employee[0];
@@ -89,7 +89,7 @@ router
         updatedEmployee
       ) {
         if (err) {
-          res.sendStatus(404, "application/json", `error: ${error}`);
+          res.sendStatus(404, "application/json", { error: err });
           return;
         }
         res.json(updatedEmployee);
@@ -106,7 +106,7 @@ router
     const selectedId = req.params.id;
     Employee.findById(selectedId, "officeElements", function (err, employee) {
       if (err) {
-        res.sendStatus(404, "application/json", `error: ${error}`);
+        res.sendStatus(404, "application/json", `error: ${err}`);
         return;
       }
       res.json(employee.officeElements);
@@ -121,12 +121,21 @@ router
       updatedEmployee
     ) {
       if (err) {
-        res.sendStatus(400, "application/json", `error: ${error}`);
+        res.sendStatus(400, "application/json", `error: ${err}`);
         return;
       }
       res.json(updatedEmployee.officeElements);
       return;
     });
   });
+
+router.route("/:id/elements/:elements").delete(function (req, res) {
+  const selectedId = req.params.id;
+  //   const update = { };
+  //   for (let field in body) {
+  //     if (body[field] !== original[field]) update[field] = body[field];
+  //   }
+  // Employee.findByIdAndUpdate
+});
 
 module.exports = router;

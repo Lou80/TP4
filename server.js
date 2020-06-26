@@ -11,13 +11,17 @@ app.response.sendStatus = function (statusCode, type, message) {
   return this.contentType(type).status(statusCode).send(message);
 };
 
+app.response.sendJson = function (statusCode, message) {
+  return this.status(statusCode).json(message);
+};
+
 app.all("/api/users(/:id)?", function (req, res, next) {
   const auth = true;
   if (auth) {
     console.log("Auth checked" + req.method);
     next();
   } else {
-    res.sendStatus(401, "application/json", '{"error":"Please log in"}');
+    res.sendJson(401, { error: { message: "please log in" } });
   }
 });
 
