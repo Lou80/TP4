@@ -2,17 +2,42 @@ const express = require("express");
 const router = express.Router();
 const cors = require("cors");
 router.use(cors());
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/test", { useNewUrlParser: true });
+mongoose.set("useFindAndModify", false);
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function () {
+  console.log("we're connected!");
+});
 
-router.response.sendStatus = function (statusCode, type, message) {
-  return this.contentType(type).status(statusCode).send(message);
-};
+const employeeSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    maxlength: [30, "Sorry, name is too long"],
+  },
+  email: { type: String, required: true },
+  address: { type: String, required: true },
+  phoneNumber: {
+    type: Number,
+    min: [111111, "Not valid phone number"],
+    max: [999999999999, "Not valid phone number"],
+  },
+});
 
-app
-  .route("/api/users")
+const Employee = mongoose.model("Employee", employeeSchema);
+
+router
+  .route("/")
   .get(function (req, res) {
     Employee.find(function (err, employees) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(400, "application/json", `error: ${error}`);
+        return;
+      }
       res.json(employees);
+      return;
     });
   })
   .post(function (req, res) {
@@ -23,58 +48,49 @@ app
       address: address,
       phoneNumber: phoneNumber,
     });
-    newEmployee.save(function (error) {
-      //console.log(error);
-      //assert.equal(error.errors, "some missing or invalid data");
-      //assert.equal(error.errors["email"].message, "Path `email` is required.");
-      // assert.equal(
-      //   error.errors["address"].message,
-      //   "Path `address` is required."
-      // );
-
+    newEmployee.save(function (error, myNewEmployee) {
       if (error) {
-        console.log(error);
-        return res.sendStatus(400, "application/json", `error: ${error}`);
+        res.sendStatus(404, "application/json", `error: ${error}`);
+        return;
       }
-      return res.json(newEmployee);
+      res.json(myNewEmployee);
     });
   });
 
-app
-  .route("/api/users/:id")
+router
+  .route("/:id")
   .delete(function (req, res) {
     Employee.deleteOne({ _id: req.params.id }, function (err) {
-      if (err) return handleError(err);
-      return res.json();
+      if (err) {
+        res.sendStatus(404, "application/json", `error: ${error}`);
+        return;
+      }
+      res.json();
+      return;
     });
   })
-
   .put(function (req, res) {
-    const { name, email, address, phoneNumber } = req.body;
+    const { body } = req;
     const selectedId = { _id: req.params.id };
     Employee.find(selectedId, function (err, employee) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(404, "application/json", `error: ${error}`);
+        return;
+      }
       const original = employee[0];
       const update = {};
-      if (name !== employee[0].name) update.name = name;
-      // for (let key in req.body) {
-      //   if (key !== `${original}.${key}`) {
-      //     `${update}.${key}` = key;
-      //   }
-      // }
-
-      const newEm = {
-        name: name ? name : employee[0].name,
-        email: email ? email : employee[0].email,
-        address: address ? address : employee[0].address,
-        phoneNumber: phoneNumber ? phoneNumber : employee[0].phoneNumber,
-      };
+      for (let key in body) {
+        if (body[key] !== original[key]) update[key] = body[key];
+      }
       Employee.findOneAndUpdate(selectedId, update, { new: true }, function (
         err,
-        newEmployee
+        updatedEmployee
       ) {
-        if (err) return handleError(err);
-        return res.json(newEmployee);
+        if (err) {
+          res.sendStatus(404, "application/json", `error: ${error}`);
+          return;
+        }
+        res.json(updatedEmployee);
       });
     });
   });

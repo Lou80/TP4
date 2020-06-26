@@ -6,30 +6,10 @@ app.use(express.json());
 app.use(express.static("assets"));
 const routes = require("./routes");
 const assert = require("assert");
-const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/test", { useNewUrlParser: true });
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", function () {
-  console.log("we're connected!");
-});
 
-const employeeSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    maxlength: [30, "Sorry, name is too long"],
-  },
-  email: { type: String, required: true },
-  address: { type: String, required: true },
-  phoneNumber: {
-    type: Number,
-    min: [111111, "Not valid phone number"],
-    max: [999999999999, "Not valid phone number"],
-  },
-});
-
-const Employee = mongoose.model("Employee", employeeSchema);
+app.response.sendStatus = function (statusCode, type, message) {
+  return this.contentType(type).status(statusCode).send(message);
+};
 
 app.all("/api/users(/:id)?", function (req, res, next) {
   const auth = true;
