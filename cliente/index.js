@@ -3,9 +3,9 @@ const baseURL = "http://localhost:3000";
 fetch(`${baseURL}/api/users`)
   .then(function (res) {
     if (res.ok) {
-      return res.json();
+      res.json();
     } else {
-      console.log(res);
+      return console.log(res);
     }
   })
   .then(function (users) {

@@ -24,6 +24,7 @@ const employeeSchema = new mongoose.Schema({
     min: [111111, "Not valid phone number"],
     max: [999999999999, "Not valid phone number"],
   },
+  officeElements: [String],
 });
 
 const Employee = mongoose.model("Employee", employeeSchema);
@@ -41,12 +42,13 @@ router
     });
   })
   .post(function (req, res) {
-    const { name, email, address, phoneNumber } = req.body;
+    const { name, email, address, phoneNumber, officeElements } = req.body;
     const newEmployee = new Employee({
       name: name,
       email: email,
       address: address,
       phoneNumber: phoneNumber,
+      officeElements: officeElements,
     });
     newEmployee.save(function (error, myNewEmployee) {
       if (error) {
@@ -79,8 +81,8 @@ router
       }
       const original = employee[0];
       const update = {};
-      for (let key in body) {
-        if (body[key] !== original[key]) update[key] = body[key];
+      for (let field in body) {
+        if (body[field] !== original[field]) update[field] = body[field];
       }
       Employee.findOneAndUpdate(selectedId, update, { new: true }, function (
         err,
@@ -92,6 +94,38 @@ router
         }
         res.json(updatedEmployee);
       });
+    });
+  });
+
+// const elements = require("./elements");
+// router.use("/:id/elements", elements);
+
+router
+  .route("/:id/elements")
+  .get(function (req, res) {
+    const selectedId = req.params.id;
+    Employee.findById(selectedId, "officeElements", function (err, employee) {
+      if (err) {
+        res.sendStatus(404, "application/json", `error: ${error}`);
+        return;
+      }
+      res.json(employee.officeElements);
+      return;
+    });
+  })
+  .post(function (req, res) {
+    const selectedId = req.params.id;
+    const update = { $push: { officeElements: req.body } };
+    Employee.findByIdAndUpdate(selectedId, update, { new: true }, function (
+      err,
+      updatedEmployee
+    ) {
+      if (err) {
+        res.sendStatus(400, "application/json", `error: ${error}`);
+        return;
+      }
+      res.json(updatedEmployee.officeElements);
+      return;
     });
   });
 
