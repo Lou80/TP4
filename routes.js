@@ -34,7 +34,7 @@ router
   .get(function (req, res) {
     Employee.find(function (err, employees) {
       if (err) {
-        res.sendStatus(400, "application/json", `error: ${error}`);
+        res.sendStatus(400, "application/json", `error: ${err}`);
         return;
       }
       res.json(employees);
@@ -64,7 +64,7 @@ router
   .delete(function (req, res) {
     Employee.deleteOne({ _id: req.params.id }, function (err) {
       if (err) {
-        res.sendStatus(404, "application/json", `error: ${error}`);
+        res.sendStatus(404, "application/json", `error: ${err}`);
         return;
       }
       res.json();
@@ -106,36 +106,60 @@ router
     const selectedId = req.params.id;
     Employee.findById(selectedId, "officeElements", function (err, employee) {
       if (err) {
-        res.sendStatus(404, "application/json", `error: ${err}`);
+        res.sendJson(404, { error: { message: "Didn't find the employee" } });
         return;
       }
-      res.json(employee.officeElements);
+      res.json(employee);
       return;
     });
   })
   .post(function (req, res) {
     const selectedId = req.params.id;
-    const update = { $push: { officeElements: req.body } };
-    Employee.findByIdAndUpdate(selectedId, update, { new: true }, function (
-      err,
-      updatedEmployee
-    ) {
-      if (err) {
-        res.sendStatus(400, "application/json", `error: ${err}`);
+    Employee.findByIdAndUpdate(
+      selectedId,
+      { $addToSet: { officeElements: { $each: req.body } } },
+      { new: true },
+      function (err, updatedEmployee) {
+        if (err) {
+          res.sendJson(400, { error: { message: err } });
+          return;
+        }
+        res.json(updatedEmployee.officeElements);
         return;
       }
-      res.json(updatedEmployee.officeElements);
-      return;
-    });
+    );
+  })
+  .delete(function (req, res) {
+    const selectedId = req.params.id;
+    Employee.findByIdAndUpdate(
+      selectedId,
+      { $pull: { officeElements: req.body } },
+      { new: true },
+      function (err, updatedEmployee) {
+        if (err) {
+          res.sendJson(400, { error: { message: err } });
+          return;
+        }
+        res.json(updatedEmployee.officeElements);
+        return;
+      }
+    );
+  })
+  .patch(function (req, res) {
+    const selectedId = req.params.id;
+    Employee.findByIdAndUpdate(
+      selectedId,
+      { officeElements: req.body },
+      { new: true },
+      function (err, updatedEmployee) {
+        if (err) {
+          res.sendJson(400, { error: { message: err } });
+          return;
+        }
+        res.json(updatedEmployee.officeElements);
+        return;
+      }
+    );
   });
-
-router.route("/:id/elements/:elements").delete(function (req, res) {
-  const selectedId = req.params.id;
-  //   const update = { };
-  //   for (let field in body) {
-  //     if (body[field] !== original[field]) update[field] = body[field];
-  //   }
-  // Employee.findByIdAndUpdate
-});
 
 module.exports = router;
